@@ -1,0 +1,457 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Copy of Copy of Untitled0.ipynb",
+      "provenance": [],
+      "authorship_tag": "ABX9TyM/5SbUbRiHyLYy8adt644l",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/aldiptr20/tugas/blob/main/TugasAldi10.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "PEWW6DUKM_B2",
+        "outputId": "7cdef3c3-354b-49ad-8491-2ba8de73c3af"
+      },
+      "source": [
+        "from google.colab import drive\r\n",
+        "drive.mount('/content/drive')"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Mounted at /content/drive\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "yXCanmOrNBJe",
+        "outputId": "ffc48d3c-c478-4e47-db35-dff3c3f2b154"
+      },
+      "source": [
+        "cd /content/drive/MyDrive/Colab Notebooks (1)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[Errno 2] No such file or directory: '/content/drive/MyDrive/Colab Notebooks (1)'\n",
+            "/content\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "FNlt--QGNCgd",
+        "outputId": "a0628cf3-77b7-42b8-fe34-1c9bf96c0659"
+      },
+      "source": [
+        "ls"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "\u001b[0m\u001b[01;34mdrive\u001b[0m/  \u001b[01;34msample_data\u001b[0m/\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "dzcJij5VNCib"
+      },
+      "source": [
+        "# import the necessary packages\r\n",
+        "from keras.models import Sequential\r\n",
+        "from keras.layers.convolutional import Conv2D\r\n",
+        "from keras.layers.convolutional import MaxPooling2D\r\n",
+        "from keras.layers.core import Activation\r\n",
+        "from keras.layers.core import Flatten\r\n",
+        "from keras.layers.core import Dense\r\n",
+        "from keras.optimizers import Adam\r\n",
+        "from sklearn.preprocessing import LabelBinarizer\r\n",
+        "from sklearn.model_selection import train_test_split\r\n",
+        "from sklearn.metrics import classification_report\r\n",
+        "from PIL import Image\r\n",
+        "from imutils import paths\r\n",
+        "import numpy as np\r\n",
+        "import os"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "8YOBdivnNCk5",
+        "outputId": "1f0fb9a0-7fcc-4fad-a8c1-a2e659394d28"
+      },
+      "source": [
+        "# grab all image paths in the input dataset directory, then initialize\r\n",
+        "# our list of images and corresponding class labels\r\n",
+        "print(\"[INFO] loading images...\")\r\n",
+        "imagePaths = paths.list_images(\"3scene\")\r\n",
+        "data = []\r\n",
+        "labels = []"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[INFO] loading images...\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "K6wOHi25NCm-"
+      },
+      "source": [
+        "# loop over our input images\r\n",
+        "for imagePath in imagePaths:\r\n",
+        "\t# load the input image from disk, resize it to 64x64 pixels, scale\r\n",
+        "\t# the pixel intensities to the range [0, 1], and then update our\r\n",
+        "\t# images list\r\n",
+        "\timage = Image.open(imagePath)\r\n",
+        "\timage = np.array(image.resize((224, 224))) / 255.0\r\n",
+        "\tdata.append(image)\r\n",
+        "\r\n",
+        "\t# extract the class label from the file path and update the\r\n",
+        "\t# labels list\r\n",
+        "\tlabel = imagePath.split(os.path.sep)[-2]\r\n",
+        "\tlabels.append(label)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9VmkBjBtNCpe",
+        "outputId": "4d4af28a-90af-4957-93b3-a6e534a128c0"
+      },
+      "source": [
+        "print(labels)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[]\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 340
+        },
+        "id": "Cl_iYX77NCrj",
+        "outputId": "c1ddb2bd-0c0b-4c09-99f5-2b07eb730eb3"
+      },
+      "source": [
+        "# encode the labels, converting them from strings to integers\r\n",
+        "lb = LabelBinarizer()\r\n",
+        "labels = lb.fit_transform(labels)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "ValueError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mValueError\u001b[0m                                Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-9-e4968e9aa819>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;31m# encode the labels, converting them from strings to integers\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      2\u001b[0m \u001b[0mlb\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mLabelBinarizer\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 3\u001b[0;31m \u001b[0mlabels\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mlb\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit_transform\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mlabels\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+            "\u001b[0;32m/usr/local/lib/python3.6/dist-packages/sklearn/preprocessing/_label.py\u001b[0m in \u001b[0;36mfit_transform\u001b[0;34m(self, y)\u001b[0m\n\u001b[1;32m    453\u001b[0m             \u001b[0mShape\u001b[0m \u001b[0mwill\u001b[0m \u001b[0mbe\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0mn_samples\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;36m1\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mbinary\u001b[0m \u001b[0mproblems\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    454\u001b[0m         \"\"\"\n\u001b[0;32m--> 455\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mtransform\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    456\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    457\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mtransform\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/usr/local/lib/python3.6/dist-packages/sklearn/preprocessing/_label.py\u001b[0m in \u001b[0;36mfit\u001b[0;34m(self, y)\u001b[0m\n\u001b[1;32m    427\u001b[0m                              \"label binarization\")\n\u001b[1;32m    428\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0m_num_samples\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;34m==\u001b[0m \u001b[0;36m0\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 429\u001b[0;31m             \u001b[0;32mraise\u001b[0m \u001b[0mValueError\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'y has 0 samples: %r'\u001b[0m \u001b[0;34m%\u001b[0m \u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    430\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    431\u001b[0m         \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msparse_input_\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0msp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0missparse\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mValueError\u001b[0m: y has 0 samples: []"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "0LRcN43gNCuG"
+      },
+      "source": [
+        "print(labels)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "vyqSbweqNCwO"
+      },
+      "source": [
+        "# perform a training and testing split, using 75% of the data for\r\n",
+        "# training and 25% for evaluation\r\n",
+        "(trainX, testX, trainY, testY) = train_test_split(np.array(data),\tnp.array(labels), test_size=0.25)\r\n",
+        "print(trainX.shape)\r\n",
+        "print(testX.shape)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Qi5J_HC2NCyg"
+      },
+      "source": [
+        "from keras.applications.mobilenet import MobileNet\r\n",
+        "from keras.callbacks import EarlyStopping, ModelCheckpoint\r\n",
+        "from keras.models import Model\r\n",
+        "from keras.layers import GlobalAveragePooling2D, BatchNormalization"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "AhCjNQQBNQgX"
+      },
+      "source": [
+        "from keras.layers import Dropout\r\n",
+        "base_model = MobileNet(weights='imagenet', include_top=False)\r\n",
+        "x = base_model.output\r\n",
+        "x = GlobalAveragePooling2D()(x)\r\n",
+        "x = Dropout(0.5)(x)\r\n",
+        "x = BatchNormalization()(x)\r\n",
+        "x = Dense(512, activation='relu')(x)\r\n",
+        "out = Dense(3, activation='softmax')(x)\r\n",
+        "\r\n",
+        "model = Model(inputs=base_model.input, outputs=out)\r\n",
+        "model.summary()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oF6Le_JPNQid"
+      },
+      "source": [
+        "es = EarlyStopping(monitor='val_loss',\r\n",
+        "                   patience=5,\r\n",
+        "                   mode='auto',\r\n",
+        "                   restore_best_weights=True)\r\n",
+        "checkpoint = ModelCheckpoint('best_weight_scene_mobileNet.h5',\r\n",
+        "                             monitor='val_accuracy',\r\n",
+        "                             verbose=1,\r\n",
+        "                             save_best_only=True,\r\n",
+        "                             mode='auto',)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Udt-Ty5RNQkv"
+      },
+      "source": [
+        "model.summary()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "HfbKEObSNQm_"
+      },
+      "source": [
+        "# train the model using the Adam optimizer\r\n",
+        "print(\"[INFO] training network...\")\r\n",
+        "opt = Adam(lr=1e-3, decay=1e-3 / 50)\r\n",
+        "model.compile(loss=\"categorical_crossentropy\", optimizer=opt,\r\n",
+        "\tmetrics=[\"accuracy\"])\r\n",
+        "H = model.fit(trainX, trainY, validation_data=(testX, testY), epochs=50, batch_size=32, callbacks=[es, checkpoint])"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "awxSf3JCNQpl"
+      },
+      "source": [
+        "import matplotlib.pyplot as plt\r\n",
+        "\r\n",
+        "print(H.history.keys())\r\n",
+        "# summarize history for accuracy\r\n",
+        "plt.plot(H.history['accuracy'])\r\n",
+        "plt.plot(H.history['val_accuracy'])\r\n",
+        "plt.title('model accuracy')\r\n",
+        "plt.ylabel('accuracy')\r\n",
+        "plt.xlabel('epoch')\r\n",
+        "plt.legend(['train', 'test'], loc='upper left')\r\n",
+        "plt.show()\r\n",
+        "# summarize history for loss\r\n",
+        "plt.plot(H.history['loss'])\r\n",
+        "plt.plot(H.history['val_loss'])\r\n",
+        "plt.title('model loss')\r\n",
+        "plt.ylabel('loss')\r\n",
+        "plt.xlabel('epoch')\r\n",
+        "plt.legend(['train', 'test'], loc='upper left')\r\n",
+        "plt.show()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "rlo4HGx9NQrz"
+      },
+      "source": [
+        "# evaluate the network\r\n",
+        "print(\"[INFO] evaluating network...\")\r\n",
+        "predictions = model.predict(testX, batch_size=32)\r\n",
+        "print(classification_report(testY.argmax(axis=1),\r\n",
+        "\tpredictions.argmax(axis=1), target_names=lb.classes_))"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "iDrmaTUcNQuY"
+      },
+      "source": [
+        "model.save('nnmodel_scene')"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Hug6Z_9XNej_"
+      },
+      "source": [
+        "import cv2\r\n",
+        "import matplotlib.pyplot as plt\r\n",
+        "image1='forest_test.jpg'"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "uYysIOv6NemV"
+      },
+      "source": [
+        "img_array = cv2.imread(image1)\r\n",
+        "plt.imshow(img_array)\r\n",
+        "plt.show()\r\n",
+        "# print(type(img_array))"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "grlrjKcJNeot"
+      },
+      "source": [
+        "image_testing = Image.open('forest_test.jpg')\r\n",
+        "image_testing = np.array(image_testing.resize((64, 64))) / 255.0\r\n",
+        "image_testing.shape"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "cIf2-SzbNj3m"
+      },
+      "source": [
+        "image_testing = np.expand_dims(image_testing, axis=0)\r\n",
+        "print(image_testing.shape)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "6mCaYfhuNj57"
+      },
+      "source": [
+        "output = model.predict(image_testing, 1)\r\n",
+        "print(output)\r\n",
+        "print(lb.classes_[output.argmax(axis=1)])"
+      ],
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
