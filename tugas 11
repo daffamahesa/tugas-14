@@ -1,0 +1,364 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled1.ipynb",
+      "provenance": [],
+      "authorship_tag": "ABX9TyPSNNjTxT4ErBHIpuL5vbRU",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/aldiptr20/tugas/blob/main/tugasAldi11.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "aonFLB_AN4qp"
+      },
+      "source": [
+        "from google.colab import drive\r\n",
+        "drive.mount('/content/drive')"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "uw1y7wnRPSId"
+      },
+      "source": [
+        "cd /content/drive/MyDrive/Colab Notebooks (1)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "9d-enYTAPSK0"
+      },
+      "source": [
+        "ls"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Bs4EKYoEPSNU"
+      },
+      "source": [
+        "# Import necessary modules and packages\r\n",
+        "from keras.models import Sequential\r\n",
+        "from keras.layers.core import Activation\r\n",
+        "from keras.layers.core import Flatten\r\n",
+        "from keras.layers.core import Dense\r\n",
+        "from keras.optimizers import Adam\r\n",
+        "from sklearn.preprocessing import LabelBinarizer\r\n",
+        "from sklearn.model_selection import train_test_split\r\n",
+        "from sklearn.metrics import classification_report\r\n",
+        "from PIL import Image\r\n",
+        "from imutils import paths\r\n",
+        "import numpy as np\r\n",
+        "import os"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "2Vc8DAX_PSPq"
+      },
+      "source": [
+        "# Create the image path with \"paths\" in the input data dataset directory\r\n",
+        "# List the images and its labels\r\n",
+        "print(\"[INFO loading images..\")\r\n",
+        "imagePaths = paths.list_images(\"dataset\")\r\n",
+        "data = []\r\n",
+        "labels = []"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ChdIuAbxPSSV"
+      },
+      "source": [
+        "# Loop over the input images using \"for\" function:\r\n",
+        "for imagePath in imagePaths:\r\n",
+        "  # Load the input image from the selected image path\r\n",
+        "  image = Image.open(imagePath)\r\n",
+        "\r\n",
+        "  # Resize it to 64x64 pixels, the pixel intensities to the range [0,1] and then updateour image list\r\n",
+        "  # Conducting the prepocessing and normalize process to the image\r\n",
+        "  image = np.array(image.resize((64,64))) / 255.0 \r\n",
+        "  data.append(image)\r\n",
+        "\r\n",
+        "  # Extract the class label from the path file and update the labels list\r\n",
+        "  label = imagePath.split(os.path.sep)[-2]\r\n",
+        "  labels.append(label)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "xeYJZEKEPSU3"
+      },
+      "source": [
+        "# Visualize the input image label list\r\n",
+        "print(labels)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Hn1z8aW_PSXW"
+      },
+      "source": [
+        "# Encode the input image labels, convert them from strings to integers to make easier for computer to proceed\r\n",
+        "lb = LabelBinarizer()\r\n",
+        "labels = lb.fit_transform(labels)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "_5Ce_tBzPSZ2"
+      },
+      "source": [
+        "# Visualize the converted input label images\r\n",
+        "print(labels)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "3IvE9UWyPSco"
+      },
+      "source": [
+        "# Perform a training and testing split data for modeling\r\n",
+        "# Using 80% of the data for training and 20% of the data for evaluation\r\n",
+        "(trainX, testX, trainY, testY) = train_test_split(np.array(data), np.array(labels), test_size=0.20, shuffle=True)\r\n",
+        "\r\n",
+        "# Visualize train and test X shape\r\n",
+        "print(trainX.shape)\r\n",
+        "print(testX.shape)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "FOWMI3ywPSfO"
+      },
+      "source": [
+        "# Conducting Convolutional Neural Network and Fully Connected Feedforward Network\r\n",
+        "\r\n",
+        "# Import necessary modules and packages\r\n",
+        "from keras.layers import Convolution2D, MaxPooling2D\r\n",
+        "from keras.models import Sequential\r\n",
+        "from keras.layers.core import Flatten, Dense\r\n",
+        "\r\n",
+        "# Proceed the CNN stages (2 times of Convolution and Max Pooling)\r\n",
+        "model = Sequential()\r\n",
+        "model.add(Convolution2D(8, (3,3), activation=\"relu\", input_shape=(64,64,3))) # the input shape is supposed to be the same as resize input image [64x64] for RGB image\r\n",
+        "model.add(MaxPool2D(2,2))\r\n",
+        "model.add(Convolution2D(16, (3,3), activation=\"relu\"))\r\n",
+        "model.add(MAxPool2D(2,2))\r\n",
+        "\r\n",
+        "# Conduct the Fully Connected Layer  stages\r\n",
+        "model.add(Flatten) # remap the weight to 1D\r\n",
+        "model.add(Dense(100, activation='relu'))\r\n",
+        "model.add(Dense(5, activation='softmax')) # 5 for attributes that is use for this modeling\r\n",
+        "\r\n",
+        "# Perform the model summary\r\n",
+        "model.summary"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Zm457jdoPSh7"
+      },
+      "source": [
+        "# Train the model using the Adam Optimizer\r\n",
+        "print('[INFO] training network...')\r\n",
+        "opt = Adam(lr=1e-3, decay=1e-3/50)\r\n",
+        "model.compile(loss=\"categorical_crossentropy\", optimizer=opt, metrics[\"accuracy\"])"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "VQJlHmlXPSkd"
+      },
+      "source": [
+        "H = model.fit(trainX,trainY, validation_data=(testX, testY,), epochs=25, batch_size=32)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "g2N4P2OzPSnH"
+      },
+      "source": [
+        "# Visualixe the trained model\r\n",
+        "\r\n",
+        "# Import Matplotlib\r\n",
+        "import matplotlib.pyplot as plt\r\n",
+        "\r\n",
+        "print(H.history.keys())\r\n",
+        "\r\n",
+        "# Summarize history for accuracy\r\n",
+        "plt.plot(H.history['accuracy'])\r\n",
+        "plt.plot(H.history['val_accuracy'])\r\n",
+        "plt.title('Model Accuracy')\r\n",
+        "plt.ylabel('Accuracy')\r\n",
+        "plt.xlabel('Epoch')\r\n",
+        "plt.legend(['Train', 'Test'], loc='upper left')\r\n",
+        "plt.show()\r\n",
+        "\r\n",
+        "# Summarize history for loss\r\n",
+        "plt.plot(H.history['loss'])\r\n",
+        "plt.plot(H.history['val_loss'])\r\n",
+        "plt.title('Modell Loss')\r\n",
+        "plt.ylabel('Loss')\r\n",
+        "plt.xlabel('Epoch')\r\n",
+        "plt.legend(['Train', 'Test'], loc='upper left')\r\n",
+        "plt.show()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "uk46bX-KPSph"
+      },
+      "source": [
+        "# Evaluate the model by using F1 Score Table\r\n",
+        "print('[INFO] Evaluating Network...')\r\n",
+        "predictions = model.predict(testX, batch_size=32)\r\n",
+        "print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=lb.classes_))"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "WrX0tmzIPSsE"
+      },
+      "source": [
+        "# Save the Model\r\n",
+        "model.save('cnnmodel_leaf')"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "kShYgRiYPSun"
+      },
+      "source": [
+        "# Perform image testing by using the saved moddel by using cv2\r\n",
+        "\r\n",
+        "# Import necessary modules\r\n",
+        "import cv2\r\n",
+        "import matplotlib.pyplot as plt \r\n",
+        "image_test = 'leaf_test.jpg'"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "1zUQZMvhPSxL"
+      },
+      "source": [
+        "# Read and Show the image test file by using cv2 module\r\n",
+        "img_array = cv2.imread(image_test)\r\n",
+        "\r\n",
+        "# Read and show the array based image using matplotlib module\r\n",
+        "plt.imshow(img_array)\r\n",
+        "plt.show()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "eaByb85oPSzi"
+      },
+      "source": [
+        "image_testing = Image.open('leaf_test.jpg')\r\n",
+        "image_testing = np.array(image_testing.resize((64,64))) / 255.0 # based on the image trained model size and normalize phase\r\n",
+        "image_testing.shape # show the testing image shape "
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "pEc7IDxZPtzb"
+      },
+      "source": [
+        "image_testing = np.expand_dims(image_testing, axis=0)\r\n",
+        "print(image_testing.shape)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "tAWf7cFZPt1e"
+      },
+      "source": [
+        "output = model.predict(image_testing, 1)\r\n",
+        "print(output)\r\n",
+        "print(lb.classes_[output.argmax(Axis=1)])"
+      ],
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
